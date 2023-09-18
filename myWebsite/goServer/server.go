@@ -8,6 +8,7 @@ import (
     "html/template"
     "regexp"
     "errors"
+    "sync"
 )
 
 type Page struct {
@@ -15,11 +16,21 @@ type Page struct {
     Body []byte // byte slice
 }
 
+var counter int
+var mutex = &sync.Mutex{}
+
 // Template caching
 // Parse Files during initialisation so that all templates are in a single pointer to Template.
 var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
 // Must compile will parse and compile the regex and return a regexp. MustCompile will panic if the compilation fails.
 var validPath= regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+
+func incrementCounter(w http.ResponseWriter, r* http.Request) {
+    mutex.Lock();
+    counter++
+    fmt.Fprintf(w, "%d", counter)
+    mutex.Unlock()
+}
 
 //    param    name    return 
 // Takes a receiver (pointer to Page), returns type of error (os.WriteFile returns an error, nil - if nothing, else, error code)
@@ -122,16 +133,21 @@ func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
     return m[2], nil
 }
 
-func main() {
-    //p1 := &Page{Title: "TestPage", Body: []byte("This is a sample Page.")}
-    //p1.save();
-    //p2, _ := loadPage("TestPage")
-    //fmt.Println(string(p2.Body))
-    
-    fmt.Println("Running server on port :8080")
-    http.HandleFunc("/view/", makeHandler(viewHandler))
-    http.HandleFunc("/edit/", makeHandler(editHandler))
-    http.HandleFunc("/save/", makeHandler(saveHandler))
-    log.Fatal(http.ListenAndServe(":8080", nil))
-}
+
+//func main() {
+//    //p1 := &Page{Title: "TestPage", Body: []byte("This is a sample Page.")}
+//    //p1.save();
+//    //p2, _ := loadPage("TestPage")
+//    //fmt.Println(string(p2.Body))
+//    
+//    fmt.Println("Running server on port :8080")
+//    http.HandleFunc("/", func(w http.ResponseWriter, r* http.Request) { 
+//        http.ServeFile(w, r, r.URL.Path[:1])
+//    })
+//    http.HandleFunc("/view/", makeHandler(viewHandler))
+//    http.HandleFunc("/edit/", makeHandler(editHandler))
+//    http.HandleFunc("/save/", makeHandler(saveHandler))
+//    http.HandleFunc("/", incrementCounter)
+//    log.Fatal(http.ListenAndServe(":8080", nil))
+//}
 
