@@ -225,6 +225,34 @@ func MakeAddSuffix(suffix string) func(string) string {
     }
 }
 
+func arraysAndSlices() {
+    // Arrays are inflexible, slices are usually used instead (like python lists)
+    // Here is an arraysAndSlices
+    var arr [5]int
+    for i := 0; i < len(arr); i++ {
+        arr[i] = i * 2
+        fmt.Printf("value is: %d\n", arr[i])
+    }
+    var arr2 [3]int
+    for i := range arr2 {
+        arr2[i] = i * 2
+        fmt.Printf("value is: %d\n", arr2[i])
+    }
+
+    // Assigning some arrays
+    arr3  := arr2 // This copies the array
+    for i := range arr3 {
+        fmt.Printf("assigned to arr3: %d\n", arr3[i])
+    }
+    arr4 := &arr3
+    for i := range arr3 {
+        fmt.Printf("assigned to arr4: %d\n", arr4[i])
+    }
+    // Rearrange this value
+    arr4[0] = 111
+    fmt.Printf("Changed val of arr4 pointing to arr3, arr3 val: %d\n", arr3[0])
+}
+
 func main() {
     printingStuff()
     stringsStuff()
@@ -238,5 +266,6 @@ func main() {
     addJpeg := MakeAddSuffix(".jpeg")
     fmt.Printf("bmp factory function: %s, jpeg factory function: %s\n", addBmp("file1"), addJpeg("file2"))
     memoization()
+    arraysAndSlices()
 }
 
