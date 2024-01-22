@@ -66,7 +66,7 @@ func handleRoutes(w http.ResponseWriter, r* http.Request) {
 }
 
 func createServer() {
-    port := ":80"
+    port := ":8080"
     http.HandleFunc("/", logPanics(handleRoutes))
     fmt.Printf("Creating a server at %s\n", port[1:])
     err := http.ListenAndServe(port, nil)
