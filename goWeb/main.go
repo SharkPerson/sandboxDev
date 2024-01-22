@@ -19,8 +19,20 @@ type Todo struct {
 type HandleFun func(http.ResponseWriter, *http.Request)
 
 func main() {
+    doPageStuff()
+}
+
+func doPageStuff() {
+    p := Page{Title: "TestPage", Body: []byte("This is a test")}
+    p.save()
+    p2, _ := loadPage("TestPage")
+    fmt.Println(string(p2.Body))
+}
+
+func doWebServerStuff() {
     var msg string = "ME!"
     fmt.Println(displayMessage(msg)())
+    serveFiles()
     createServer()
 }
 
@@ -32,6 +44,15 @@ func logPanics(function HandleFun) HandleFun {
             }
         }()
         function(w, r)
+    }
+}
+
+func logging(f http.HandlerFunc) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        defer func() {
+            log.Println(r.URL.Path)
+        }()
+        f(w,r)
     }
 }
 
@@ -65,9 +86,19 @@ func handleRoutes(w http.ResponseWriter, r* http.Request) {
     }
 }
 
+func serveFiles() {
+    fs := http.FileServer(http.Dir("assets/"))
+    http.Handle("/security/static/", http.StripPrefix("/security/static/", fs))
+}
+
 func createServer() {
+<<<<<<< Updated upstream
     port := ":8080"
     http.HandleFunc("/", logPanics(handleRoutes))
+=======
+    port := ":80"
+    http.HandleFunc("/", logging(handleRoutes))
+>>>>>>> Stashed changes
     fmt.Printf("Creating a server at %s\n", port[1:])
     err := http.ListenAndServe(port, nil)
     if err != nil {
